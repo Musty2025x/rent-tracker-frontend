@@ -36,77 +36,102 @@ export default function AuthPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-      <div style={{ width: '100%', maxWidth: '400px' }}>
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '1.5rem 1rem',
+      background: 'var(--bg)',
+    }}>
+      <div style={{ width: '100%', maxWidth: '420px' }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
-            width: 52, height: 52, borderRadius: 14,
-            background: '#185FA5', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', margin: '0 auto 12px'
+            width: 60, height: 60, borderRadius: 16,
+            background: '#185FA5',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 14px',
           }}>
-            <i className="ti ti-building" style={{ fontSize: 26, color: '#fff' }} />
+            <i className="ti ti-building" style={{ fontSize: 30, color: '#fff' }} />
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: 'var(--text)' }}>Rent Tracker</h1>
-          <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 600, color: 'var(--text)' }}>Rent Tracker</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-2)', marginTop: 4 }}>
             {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
           </p>
         </div>
 
-        <div className="card" style={{ padding: '1.75rem' }}>
-          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{
+          background: 'var(--surface)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--border)',
+          padding: '1.75rem 1.5rem',
+        }}>
+          <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             {mode === 'register' && (
               <div className="field">
                 <label>Full name</label>
                 <input value={form.name} onChange={e => set('name', e.target.value)}
-                  placeholder="Ajibola Sodiq" required />
+                  placeholder="Ajibola Sodiq" required autoComplete="name" />
               </div>
             )}
 
             <div className="field">
               <label>Email address</label>
               <input type="email" value={form.email} onChange={e => set('email', e.target.value)}
-                placeholder="you@email.com" required />
+                placeholder="you@email.com" required autoComplete="email"
+                inputMode="email" />
             </div>
 
             <div className="field">
               <label>Password</label>
               <input type="password" value={form.password} onChange={e => set('password', e.target.value)}
-                placeholder={mode === 'register' ? 'At least 6 characters' : '••••••••'} required />
+                placeholder={mode === 'register' ? 'At least 6 characters' : '••••••••'}
+                required autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
             </div>
 
             {mode === 'register' && (
               <div className="field">
                 <label>Phone number</label>
                 <input value={form.phone} onChange={e => set('phone', e.target.value)}
-                  placeholder="+2348012345678" />
+                  placeholder="+234 801 234 5678" inputMode="tel" />
               </div>
             )}
 
-            {error && <p className="error-msg"><i className="ti ti-alert-circle" style={{ fontSize: 13, marginRight: 4 }} />{error}</p>}
+            {error && (
+              <div style={{
+                fontSize: 13, color: 'var(--red)', padding: '8px 12px',
+                background: 'var(--red-bg)', borderRadius: 'var(--radius)',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}>
+                <i className="ti ti-alert-circle" style={{ fontSize: 15, flexShrink: 0 }} />
+                {error}
+              </div>
+            )}
 
-            <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 4, height: 40 }} disabled={loading}>
+            <button type="submit" className="btn btn-primary"
+              style={{ width: '100%', justifyContent: 'center', height: 46, fontSize: 15, marginTop: 4 }}
+              disabled={loading}>
               {loading
-                ? <><i className="ti ti-loader-2" style={{ fontSize: 15, animation: 'spin 1s linear infinite' }} /> Please wait…</>
+                ? <><i className="ti ti-loader-2" style={{ fontSize: 16, animation: 'spin 1s linear infinite' }} /> Please wait…</>
                 : mode === 'login' ? 'Sign in' : 'Create account'
               }
             </button>
           </form>
 
-          <hr className="divider" style={{ margin: '1.25rem 0' }} />
+          <div style={{ borderTop: '1px solid var(--border)', margin: '1.25rem 0' }} />
 
-          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-2)' }}>
+          <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--text-2)' }}>
             {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
             <button onClick={() => { setMode(mode === 'login' ? 'register' : 'login'); setError('') }}
-              style={{ background: 'none', border: 'none', color: 'var(--blue)', fontWeight: 500, cursor: 'pointer', fontSize: 13 }}>
+              style={{ background: 'none', border: 'none', color: 'var(--blue)', fontWeight: 600, cursor: 'pointer', fontSize: 14 }}>
               {mode === 'login' ? 'Create one' : 'Sign in'}
             </button>
           </p>
         </div>
       </div>
-
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
