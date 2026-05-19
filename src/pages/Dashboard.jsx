@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import api from '../utils/api'
-import { fmtMoney, fmtDate, statusBadge, leaseProgress, progressColor, daysLeft } from '../utils/helpers'
+import {
+  fmtMoney, fmtDate, statusBadge, statusColor,
+  paidThisCycle, cycleBalance, daysToNext, fixedDueLabel,
+  nextDueDate, leaseStatus, totalEverPaid,
+} from '../utils/helpers'
 
 export default function Dashboard() {
   const { user }   = useAuth()
@@ -16,13 +20,14 @@ export default function Dashboard() {
       .finally(() => setLoading(false))
   }, [])
 
-  const total    = props.length
-  const active   = props.filter(p => p.end_date && daysLeft(p.end_date) >= 0).length
-  const expiring = props.filter(p => p.end_date && daysLeft(p.end_date) >= 0 && daysLeft(p.end_date) <= 60).length
-  const expired  = props.filter(p => p.end_date && daysLeft(p.end_date) < 0).length
-  const totalCol = props.reduce((s, p) => s + parseFloat(p.total_paid || 0), 0)
+  const total     = props.length
+  const paid      = props.filter(p => leaseStatus(p.payments, p.start_date, p.yearly_rent) === 'paid').length
+  const attention = props.filter(p => leaseStatus(p.payments, p.start_date, p.yearly_rent) !== 'paid').length
+  const totalCol  = props.reduce((s, p) => s + totalEverPaid(p.payments || []), 0)
 
-  const urgent   = props.filter(p => p.end_date && daysLeft(p.end_date) <= 60).sort((a,b) => daysLeft(a.end_date) - daysLeft(b.end_date))
+  const urgent = props
+    .filter(p => ['overdue', 'warn'].includes(leaseStatus(p.payments, p.start_date, p.yearly_rent)))
+    .sort((a, b) => daysToNext(a.start_date) - daysToNext(b.start_date))
 
   if (loading) return <Loader />
 
@@ -31,16 +36,16 @@ export default function Dashboard() {
       <div style={{ marginBottom: '1.75rem' }}>
         <h1 style={{ fontSize: 20, fontWeight: 600 }}>Good morning, {user?.name?.split(' ')[0]} 👋</h1>
         <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 3 }}>
-          {new Date().toLocaleDateString('en-NG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' })}
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid-4" style={{ marginBottom: '1.75rem' }}>
-        <StatCard label="Total properties" value={total} icon="ti-building-estate" color="var(--blue)" />
-        <StatCard label="Active leases"    value={active}   icon="ti-circle-check" color="var(--green)" />
-        <StatCard label="Expiring soon"    value={expiring} icon="ti-bell"         color="var(--amber)" />
-        <StatCard label="Total collected"  value={fmtMoney(totalCol)} icon="ti-cash" color="var(--blue)" small />
+        <StatCard label="Total properties"    value={total}          icon="ti-building-estate" color="var(--blue)" />
+        <StatCard label="Fully paid"          value={paid}           icon="ti-circle-check"    color="var(--green)" />
+        <StatCard label="Needs attention"     value={attention}      icon="ti-bell"            color="var(--amber)" />
+        <StatCard label="Total collected"     value={fmtMoney(totalCol)} icon="ti-cash"        color="var(--blue)" small />
       </div>
 
       {/* Urgent reminders */}
@@ -52,20 +57,23 @@ export default function Dashboard() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {urgent.slice(0, 3).map(p => {
-              const d = daysLeft(p.end_date)
+              const d    = daysToNext(p.start_date)
+              const bal  = cycleBalance(p.payments || [], p.start_date, p.yearly_rent)
               const isExp = d < 0
               return (
                 <div key={p.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px',
-                  borderRadius: 'var(--radius)', border: '1px solid',
-                  background: isExp ? 'var(--red-bg)' : 'var(--amber-bg)',
-                  borderColor: isExp ? '#F7C1C1' : '#FAC775'
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 14px', borderRadius: 'var(--radius)',
+                  border: '1px solid', background: isExp ? 'var(--red-bg)' : 'var(--amber-bg)',
+                  borderColor: isExp ? '#F7C1C1' : '#FAC775',
                 }}>
-                  <i className={`ti ${isExp ? 'ti-alert-circle' : 'ti-bell-ringing'}`} style={{ fontSize: 18, color: isExp ? 'var(--red)' : 'var(--amber)', flexShrink: 0 }} />
+                  <i className={`ti ${isExp ? 'ti-alert-circle' : 'ti-bell-ringing'}`}
+                     style={{ fontSize: 18, color: isExp ? 'var(--red)' : 'var(--amber)', flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 13, fontWeight: 500 }}>{p.tenant_name} — {p.address}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-2)', marginTop: 1 }}>
-                      {isExp ? `Expired ${Math.abs(d)} days ago` : `Expires in ${d} day${d !== 1 ? 's' : ''}`} · {p.city}, {p.state}
+                      {isExp ? `Overdue by ${Math.abs(d)} days` : `Due in ${d} days`}
+                      {' · '}Balance outstanding: <strong style={{ color: 'var(--red)' }}>{fmtMoney(bal)}</strong>
                     </div>
                   </div>
                   <button className="btn btn-sm" onClick={() => navigate('/properties')}>View</button>
@@ -102,15 +110,19 @@ function StatCard({ label, value, icon, color, small }) {
         <span className="lbl">{label}</span>
         <i className={`ti ${icon}`} style={{ fontSize: 16, color }} />
       </div>
-      <div className="val" style={{ fontSize: small ? 15 : 22, paddingTop: small ? 4 : 0 }}>{value}</div>
+      <div className="val" style={{ fontSize: small ? 14 : 22, paddingTop: small ? 4 : 0 }}>{value}</div>
     </div>
   )
 }
 
 function PropCard({ p, onClick }) {
-  const badge = p.end_date ? statusBadge(p.end_date) : { cls: 'badge-blue', label: 'No lease' }
-  const pct   = p.start_date && p.end_date ? leaseProgress(p.start_date, p.end_date) : 0
-  const color = p.end_date ? progressColor(p.end_date) : '#378ADD'
+  const payments = p.payments || []
+  const badge    = statusBadge(payments, p.start_date, p.yearly_rent)
+  const color    = statusColor(payments, p.start_date, p.yearly_rent)
+  const paid     = paidThisCycle(payments, p.start_date)
+  const bal      = cycleBalance(payments, p.start_date, p.yearly_rent)
+  const pct      = p.yearly_rent ? Math.min(100, Math.round((paid / p.yearly_rent) * 100)) : 0
+  const nd       = p.start_date ? nextDueDate(p.start_date) : null
 
   return (
     <div className="card" style={{ cursor: 'pointer', borderLeft: `3px solid ${color}`, padding: '1rem 1.1rem' }} onClick={onClick}>
@@ -126,13 +138,36 @@ function PropCard({ p, onClick }) {
           <i className="ti ti-user" style={{ fontSize: 12, marginRight: 4 }} />{p.tenant_name} · {p.occupation}
         </div>
       )}
-      <div className="prog" style={{ marginBottom: 6 }}>
+      <div className="prog" style={{ marginBottom: 2 }}>
         <div className="prog-fill" style={{ width: `${pct}%`, background: color }} />
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-        <span style={{ color: 'var(--text-3)' }}>Rent</span>
-        <span style={{ fontWeight: 600 }}>{fmtMoney(p.yearly_rent)}/yr</span>
+      <div style={{ fontSize: 10, color: 'var(--text-3)', textAlign: 'right', marginBottom: 6 }}>{pct}% of annual rent paid</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
+        <span style={{ color: 'var(--text-3)' }}>Move-in</span>
+        <span style={{ fontWeight: 500 }}>{fmtDate(p.move_in_date)}</span>
       </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
+        <span style={{ color: 'var(--text-3)' }}>Fixed due date</span>
+        <span style={{ fontWeight: 500, color: 'var(--blue)' }}>{p.start_date ? fixedDueLabel(p.start_date) : '—'}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
+        <span style={{ color: 'var(--text-3)' }}>Next due</span>
+        <span style={{ fontWeight: 500 }}>{nd ? fmtDate(nd.toISOString().slice(0, 10)) : '—'}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
+        <span style={{ color: 'var(--text-3)' }}>Yearly rent</span>
+        <span style={{ fontWeight: 600 }}>{fmtMoney(p.yearly_rent)}</span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 2 }}>
+        <span style={{ color: 'var(--text-3)' }}>Paid this cycle</span>
+        <span style={{ fontWeight: 600, color: 'var(--green)' }}>{fmtMoney(paid)}</span>
+      </div>
+      {bal > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
+          <span style={{ color: 'var(--text-3)' }}>Balance outstanding</span>
+          <span style={{ fontWeight: 600, color: 'var(--red)' }}>{fmtMoney(bal)}</span>
+        </div>
+      )}
     </div>
   )
 }
