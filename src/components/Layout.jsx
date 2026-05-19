@@ -23,11 +23,10 @@ export default function Layout() {
     return () => window.removeEventListener('resize', handler)
   }, [])
 
-  // Prevent body scroll when drawer open
   useEffect(() => {
-    document.body.style.overflow = drawer ? 'hidden' : ''
+    document.body.style.overflow = (mobile && drawer) ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
-  }, [drawer])
+  }, [mobile, drawer])
 
   function handleLogout() { logout(); navigate('/login') }
 
@@ -36,9 +35,13 @@ export default function Layout() {
   )?.label || 'Rent Tracker'
 
   return (
-    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg)' }}>
+    <div style={{
+      display: 'flex',
+      height: '100dvh',
+      overflow: 'hidden',
+      background: 'var(--bg)',
+    }}>
 
-      {/* ── Desktop sidebar ── */}
       {!mobile && (
         <aside style={{
           width: 220, flexShrink: 0,
@@ -55,7 +58,6 @@ export default function Layout() {
               <span style={{ fontWeight: 600, fontSize: 15 }}>Rent Tracker</span>
             </div>
           </div>
-
           <nav style={{ flex: 1, padding: '1rem .75rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
             {NAV.map(({ to, icon, label }) => (
               <NavLink key={to} to={to} end={to === '/'}
@@ -71,7 +73,6 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-
           <div style={{ padding: '.75rem 1rem', borderTop: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
               <div className="avatar" style={{ width: 30, height: 30, fontSize: 11 }}>
@@ -90,30 +91,23 @@ export default function Layout() {
         </aside>
       )}
 
-      {/* ── Mobile: drawer backdrop ── */}
       {mobile && drawer && (
-        <div
-          onClick={() => setDrawer(false)}
-          style={{
-            position: 'fixed', inset: 0,
-            background: 'rgba(0,0,0,.5)',
-            zIndex: 300,
-          }}
-        />
+        <div onClick={() => setDrawer(false)} style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,.5)',
+          zIndex: 300,
+        }} />
       )}
 
-      {/* ── Mobile: slide-in drawer ── */}
       {mobile && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0,
-          width: 270,
+          position: 'fixed', top: 0, left: 0, bottom: 0, width: 270,
           background: 'var(--surface)',
           zIndex: 301,
           display: 'flex', flexDirection: 'column',
           transform: drawer ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform .22s ease',
           boxShadow: drawer ? '6px 0 30px rgba(0,0,0,.18)' : 'none',
-          // CRITICAL: when hidden, drawer must not intercept any touches
           pointerEvents: drawer ? 'auto' : 'none',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.1rem', borderBottom: '1px solid var(--border)' }}>
@@ -123,12 +117,10 @@ export default function Layout() {
               </div>
               <span style={{ fontWeight: 600, fontSize: 15 }}>Rent Tracker</span>
             </div>
-            <button onClick={() => setDrawer(false)}
-              style={{ background: 'none', border: 'none', padding: 6, cursor: 'pointer' }}>
+            <button onClick={() => setDrawer(false)} style={{ background: 'none', border: 'none', padding: 6, cursor: 'pointer' }}>
               <i className="ti ti-x" style={{ fontSize: 22, color: 'var(--text-2)' }} />
             </button>
           </div>
-
           <nav style={{ flex: 1, padding: '1rem .75rem', display: 'flex', flexDirection: 'column', gap: 4 }}>
             {NAV.map(({ to, icon, label }) => (
               <NavLink key={to} to={to} end={to === '/'}
@@ -145,7 +137,6 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-
           <div style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <div className="avatar" style={{ width: 38, height: 38, fontSize: 13 }}>
@@ -164,15 +155,11 @@ export default function Layout() {
         </div>
       )}
 
-      {/* ── Main content column ── */}
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
         minWidth: 0, height: '100dvh', overflow: 'hidden',
-        // CRITICAL: always on top of the hidden drawer
         position: 'relative', zIndex: 1,
       }}>
-
-        {/* Mobile top bar */}
         {mobile && (
           <header style={{
             display: 'flex', alignItems: 'center',
@@ -181,31 +168,26 @@ export default function Layout() {
             background: 'var(--surface)',
             borderBottom: '1px solid var(--border)',
           }}>
-            <button
-              onClick={() => setDrawer(true)}
-              style={{
-                background: 'none', border: 'none',
-                padding: '8px 4px', cursor: 'pointer',
-                display: 'flex', alignItems: 'center',
-                WebkitTapHighlightColor: 'transparent',
-              }}>
+            <button onClick={() => setDrawer(true)} style={{
+              background: 'none', border: 'none',
+              padding: '8px 4px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center',
+              WebkitTapHighlightColor: 'transparent',
+            }}>
               <i className="ti ti-menu-2" style={{ fontSize: 24, color: 'var(--text)' }} />
             </button>
-
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 26, height: 26, borderRadius: 7, background: '#185FA5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <i className="ti ti-building" style={{ fontSize: 14, color: '#fff' }} />
               </div>
               <span style={{ fontWeight: 600, fontSize: 15 }}>{pageTitle}</span>
             </div>
-
             <div className="avatar" style={{ width: 30, height: 30, fontSize: 11 }}>
               {initials(user?.name || '')}
             </div>
           </header>
         )}
 
-        {/* Scrollable page content */}
         <main style={{
           flex: 1, overflowY: 'auto',
           padding: mobile ? '1rem' : '2rem',
@@ -214,7 +196,6 @@ export default function Layout() {
           <Outlet />
         </main>
 
-        {/* Mobile bottom nav */}
         {mobile && (
           <nav style={{
             display: 'grid',
