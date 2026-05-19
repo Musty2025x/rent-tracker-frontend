@@ -34,84 +34,87 @@ export default function Layout() {
     n.to === '/' ? location.pathname === '/' : location.pathname.startsWith(n.to)
   )?.label ?? 'Rent Tracker'
 
-  const sidebarStyle = {
-    width: 230, flexShrink: 0,
-    background: 'var(--navy)',
-    display: 'flex', flexDirection: 'column',
-    height: '100dvh', overflowY: 'auto',
-  }
-
-  const logoBlock = (
-    <div style={{ padding: '1.4rem 1.25rem 1rem', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ width: 34, height: 34, borderRadius: 9, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <i className="ti ti-building" style={{ fontSize: 18, color: 'var(--navy)' }} />
-        </div>
-        <span style={{ fontWeight: 800, fontSize: 15, color: '#fff', letterSpacing: '.01em' }}>Rent Tracker</span>
-      </div>
-    </div>
-  )
-
-  const navLinks = (onClick) => NAV.map(({ to, icon, label }) => (
-    <NavLink key={to} to={to} end={to === '/'} onClick={onClick}
+  // Sidebar nav links — work for both desktop and mobile drawer
+  const NavLinks = ({ onNav }) => NAV.map(({ to, icon, label }) => (
+    <NavLink key={to} to={to} end={to === '/'} onClick={onNav}
       style={({ isActive }) => ({
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '10px 14px', borderRadius: 10,
-        fontSize: 14, fontWeight: 700, textDecoration: 'none',
-        color: isActive ? 'var(--navy)' : 'rgba(255,255,255,.75)',
-        background: isActive ? '#fff' : 'transparent',
-        transition: 'all .15s',
+        fontSize: 14, fontWeight: 600, textDecoration: 'none',
+        color: isActive ? 'var(--navy)' : 'rgba(255,255,255,.78)',
+        background: isActive ? '#ffffff' : 'transparent',
+        transition: 'background .12s, color .12s',
       })}>
       <i className={`ti ${icon}`} style={{ fontSize: 18, flexShrink: 0 }} />
       {label}
     </NavLink>
   ))
 
-  const userBlock = (dark) => (
-    <div style={{ padding: '.85rem 1.1rem', borderTop: `1px solid ${dark ? 'rgba(255,255,255,.1)' : 'var(--border)'}` }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
-        <div className="avatar" style={{ width: 32, height: 32, fontSize: 11, background: dark ? 'rgba(255,255,255,.15)' : 'var(--navy-bg)', color: dark ? '#fff' : 'var(--navy)' }}>
-          {initials(user?.name || '')}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: dark ? '#fff' : 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</div>
-          <div style={{ fontSize: 10, color: dark ? 'rgba(255,255,255,.55)' : 'var(--text-3)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
-        </div>
-      </div>
-      <button onClick={handleLogout}
-        style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%', padding: '7px 10px', borderRadius: 8, border: `1px solid ${dark ? 'rgba(255,255,255,.2)' : 'var(--border-md)'}`, background: 'transparent', color: dark ? 'rgba(255,255,255,.8)' : 'var(--text-2)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
-        <i className="ti ti-logout" style={{ fontSize: 14 }} /> Sign out
-      </button>
-    </div>
-  )
-
   return (
-    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg)' }}>
+    /* Outer wrapper: flex row, fills #root which is 100% height */
+    <div style={{ display: 'flex', height: '100%', overflow: 'hidden', background: 'var(--bg)' }}>
 
-      {/* Desktop sidebar */}
+      {/* ── Desktop sidebar ── */}
       {!mobile && (
-        <aside style={sidebarStyle}>
-          {logoBlock}
+        <aside style={{
+          width: 230, flexShrink: 0,
+          background: 'var(--navy)',
+          display: 'flex', flexDirection: 'column',
+          height: '100%', overflowY: 'auto',
+        }}>
+          {/* Logo */}
+          <div style={{ padding: '1.4rem 1.25rem 1rem', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 9, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <i className="ti ti-building" style={{ fontSize: 18, color: 'var(--navy)' }} />
+              </div>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>Rent Tracker</span>
+            </div>
+          </div>
+          {/* Nav */}
           <nav style={{ flex: 1, padding: '1rem .85rem', display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {navLinks(null)}
+            <NavLinks onNav={null} />
           </nav>
-          {userBlock(true)}
+          {/* User */}
+          <div style={{ padding: '.85rem 1.1rem', borderTop: '1px solid rgba(255,255,255,.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,.15)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                {initials(user?.name || '')}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+              </div>
+            </div>
+            <button onClick={handleLogout} style={{
+              display: 'flex', alignItems: 'center', gap: 6, width: '100%',
+              padding: '7px 10px', borderRadius: 8, cursor: 'pointer',
+              border: '1px solid rgba(255,255,255,.2)', background: 'transparent',
+              color: 'rgba(255,255,255,.8)', fontSize: 12, fontWeight: 600,
+            }}>
+              <i className="ti ti-logout" style={{ fontSize: 14 }} /> Sign out
+            </button>
+          </div>
         </aside>
       )}
 
-      {/* Mobile backdrop */}
+      {/* ── Mobile drawer backdrop ── */}
       {mobile && drawer && (
-        <div onClick={() => setDrawer(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(10,22,40,.6)', zIndex: 300 }} />
+        <div onClick={() => setDrawer(false)} style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(10,22,40,.6)', zIndex: 300,
+        }} />
       )}
 
-      {/* Mobile drawer */}
+      {/* ── Mobile slide-in drawer ── */}
       {mobile && (
         <div style={{
-          position: 'fixed', top: 0, left: 0, bottom: 0, width: 260,
+          position: 'fixed', top: 0, left: 0, bottom: 0, width: 255,
           background: 'var(--navy)', zIndex: 301,
           display: 'flex', flexDirection: 'column',
           transform: drawer ? 'translateX(0)' : 'translateX(-100%)',
           transition: 'transform .22s cubic-bezier(.4,0,.2,1)',
+          // CRITICAL: hidden drawer must not intercept any clicks
           pointerEvents: drawer ? 'auto' : 'none',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.1rem', borderBottom: '1px solid rgba(255,255,255,.1)' }}>
@@ -119,22 +122,45 @@ export default function Layout() {
               <div style={{ width: 30, height: 30, borderRadius: 8, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <i className="ti ti-building" style={{ fontSize: 16, color: 'var(--navy)' }} />
               </div>
-              <span style={{ fontWeight: 800, fontSize: 15, color: '#fff' }}>Rent Tracker</span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>Rent Tracker</span>
             </div>
             <button onClick={() => setDrawer(false)} style={{ background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'rgba(255,255,255,.7)', display: 'flex' }}>
               <i className="ti ti-x" style={{ fontSize: 22 }} />
             </button>
           </div>
           <nav style={{ flex: 1, padding: '1rem .85rem', display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {navLinks(() => setDrawer(false))}
+            <NavLinks onNav={() => setDrawer(false)} />
           </nav>
-          {userBlock(true)}
+          <div style={{ padding: '.85rem 1.1rem', borderTop: '1px solid rgba(255,255,255,.1)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(255,255,255,.15)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+                {initials(user?.name || '')}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name}</div>
+                <div style={{ fontSize: 10, color: 'rgba(255,255,255,.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.email}</div>
+              </div>
+            </div>
+            <button onClick={() => { handleLogout(); setDrawer(false) }} style={{
+              display: 'flex', alignItems: 'center', gap: 6, width: '100%',
+              padding: '7px 10px', borderRadius: 8, cursor: 'pointer',
+              border: '1px solid rgba(255,255,255,.2)', background: 'transparent',
+              color: 'rgba(255,255,255,.8)', fontSize: 12, fontWeight: 600,
+            }}>
+              <i className="ti ti-logout" style={{ fontSize: 14 }} /> Sign out
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Main column — z-index 1 keeps it above hidden drawer */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, height: '100dvh', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
-
+      {/* ── Main column ──
+          position:relative + z-index:1 keeps it ABOVE the off-screen hidden drawer.
+          Using height:100% to inherit from root, not 100dvh which needs parent support. ── */}
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        minWidth: 0, height: '100%', overflow: 'hidden',
+        position: 'relative', zIndex: 1,
+      }}>
         {/* Mobile top bar */}
         {mobile && (
           <header style={{
@@ -142,23 +168,33 @@ export default function Layout() {
             padding: '0 1rem', height: 56, flexShrink: 0,
             background: 'var(--navy)',
           }}>
-            <button onClick={() => setDrawer(true)} style={{ background: 'none', border: 'none', padding: '8px 4px', cursor: 'pointer', display: 'flex', alignItems: 'center', WebkitTapHighlightColor: 'transparent' }}>
+            <button onClick={() => setDrawer(true)} style={{
+              background: 'none', border: 'none', padding: '8px 4px',
+              cursor: 'pointer', display: 'flex', alignItems: 'center',
+              WebkitTapHighlightColor: 'transparent',
+            }}>
               <i className="ti ti-menu-2" style={{ fontSize: 24, color: '#fff' }} />
             </button>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <div style={{ width: 26, height: 26, borderRadius: 7, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <i className="ti ti-building" style={{ fontSize: 14, color: 'var(--navy)' }} />
               </div>
-              <span style={{ fontWeight: 800, fontSize: 15, color: '#fff' }}>{title}</span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: '#fff' }}>{title}</span>
             </div>
-            <div className="avatar" style={{ width: 30, height: 30, fontSize: 11, background: 'rgba(255,255,255,.2)', color: '#fff' }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'rgba(255,255,255,.2)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700 }}>
               {initials(user?.name || '')}
             </div>
           </header>
         )}
 
-        {/* Page content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: mobile ? '1rem' : '2rem', WebkitOverflowScrolling: 'touch' }}>
+        {/* Scrollable page content */}
+        <main style={{
+          flex: 1, overflowY: 'auto',
+          padding: mobile ? '1rem' : '2rem',
+          WebkitOverflowScrolling: 'touch',
+          // Explicit min-height 0 needed for flex children to shrink properly
+          minHeight: 0,
+        }}>
           <Outlet />
         </main>
 
@@ -183,7 +219,7 @@ export default function Layout() {
                     <div style={{ width: 44, height: 28, borderRadius: 14, background: isActive ? 'rgba(255,255,255,.2)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <i className={`ti ${icon}`} style={{ fontSize: 20 }} />
                     </div>
-                    <span style={{ fontSize: 10, fontWeight: isActive ? 800 : 600 }}>{label}</span>
+                    <span style={{ fontSize: 10, fontWeight: isActive ? 700 : 500 }}>{label}</span>
                   </>
                 )}
               </NavLink>

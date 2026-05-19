@@ -1,40 +1,41 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Navy palette */
   --navy:      #0F2044;
   --navy-mid:  #1A3460;
   --navy-light:#2A4A80;
   --navy-bg:   #E8EEF8;
 
-  /* Page colours */
   --bg:        #EEF1F8;
   --surface:   #FFFFFF;
   --border:    #D0D9EC;
   --border-md: #B4C2D8;
 
-  /* Text — bold, high contrast */
   --text:      #0A1628;
   --text-2:    #3A4A6B;
   --text-3:    #6878A0;
 
-  /* Semantic */
   --green:     #1A6B2E;
   --green-bg:  #D4F0DC;
   --amber:     #7A4200;
   --amber-bg:  #FDEAC8;
   --red:       #981F1F;
   --red-bg:    #FCDEDE;
-  --blue:      var(--navy-mid);
-  --blue-bg:   var(--navy-bg);
-  --blue-mid:  var(--navy-light);
+  --blue:      #1A3460;
+  --blue-bg:   #E8EEF8;
+  --blue-mid:  #2A4A80;
 
   --radius:    8px;
   --radius-lg: 14px;
   --font:      'DM Sans', system-ui, -apple-system, sans-serif;
 }
 
-html, body {
+/* CRITICAL: root height chain */
+html { height: 100%; }
+body { height: 100%; margin: 0; }
+#root { height: 100%; display: flex; flex-direction: column; }
+
+body {
   font-family: var(--font);
   background: var(--bg);
   color: var(--text);
@@ -46,7 +47,6 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-#root { height: 100%; }
 a { color: inherit; text-decoration: none; }
 button { font-family: var(--font); cursor: pointer; font-weight: 600; }
 input, select, textarea { font-family: var(--font); font-weight: 500; }
@@ -67,7 +67,6 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
 .badge {
   display: inline-block; font-size: 11px; font-weight: 700;
   padding: 3px 9px; border-radius: 20px; white-space: nowrap;
-  letter-spacing: .02em;
 }
 .badge-green { background: var(--green-bg); color: var(--green); }
 .badge-amber { background: var(--amber-bg); color: var(--amber); }
@@ -82,10 +81,12 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
   border: 1.5px solid var(--border-md);
   background: var(--surface); color: var(--text);
   transition: all .15s; white-space: nowrap; min-height: 38px;
+  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  position: relative; z-index: 1;
 }
-.btn:hover  { background: var(--bg); border-color: var(--border-md); }
-.btn:active { opacity: .85; transform: scale(.98); }
+.btn:hover  { background: var(--bg); }
+.btn:active { opacity: .85; }
 .btn-primary { background: var(--navy); color: #fff; border-color: var(--navy); }
 .btn-primary:hover { background: var(--navy-mid); border-color: var(--navy-mid); }
 .btn-danger  { color: var(--red); border-color: #EFBDBD; }
@@ -95,7 +96,7 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
 
 /* ── Form fields ── */
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; color: var(--text-2); font-weight: 700; letter-spacing: .02em; }
+.field label { font-size: 12px; color: var(--text-2); font-weight: 700; }
 .field input,
 .field select,
 .field textarea {
@@ -108,7 +109,7 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
 }
 .field input:focus,
 .field select:focus,
-.field textarea:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(26,52,96,.12); }
+.field textarea:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(26,52,96,.1); }
 .field textarea { height: 80px; padding: 10px 12px; resize: vertical; }
 
 /* ── Grids ── */
@@ -122,14 +123,14 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
   border-radius: var(--radius-lg);
   padding: .9rem 1rem;
 }
-.stat-card .lbl { font-size: 11px; color: var(--text-3); margin-bottom: 4px; line-height: 1.3; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; }
-.stat-card .val { font-size: 22px; font-weight: 800; color: var(--text); }
+.stat-card .lbl { font-size: 10px; color: var(--text-3); margin-bottom: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.stat-card .val { font-size: 22px; font-weight: 700; color: var(--text); }
 
 /* ── Section title ── */
 .section-title {
-  font-size: 11px; font-weight: 800;
+  font-size: 11px; font-weight: 700;
   color: var(--text-3); text-transform: uppercase;
-  letter-spacing: .08em; margin: 1.25rem 0 .65rem;
+  letter-spacing: .07em; margin: 1.25rem 0 .65rem;
 }
 
 .divider { border: none; border-top: 1.5px solid var(--border); margin: 1rem 0; }
@@ -139,7 +140,7 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
 .avatar {
   border-radius: 50%; background: var(--navy-bg); color: var(--navy);
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 800; flex-shrink: 0;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
 }
 
 /* ── Progress bar ── */
@@ -148,7 +149,7 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
 
 /* ── Table ── */
 .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-.tbl th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 800; color: var(--text-3); border-bottom: 1.5px solid var(--border); white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
+.tbl th { text-align: left; padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--text-3); border-bottom: 1.5px solid var(--border); white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
 .tbl td { padding: 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; font-weight: 500; }
 .tbl tr:last-child td { border-bottom: none; }
 .tbl tr:hover td { background: var(--bg); }
@@ -183,13 +184,10 @@ input, select, textarea { font-family: var(--font); font-weight: 500; }
   width: 100%; max-height: 92dvh;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
 }
-.modal-header {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 1rem;
-}
-.modal-title { font-size: 17px; font-weight: 800; color: var(--text); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
 
-/* ── Mobile overrides ── */
+/* ── Mobile ── */
 @media (max-width: 768px) {
   .grid-4 { grid-template-columns: repeat(2,1fr); gap: 8px; }
   .grid-2 { grid-template-columns: 1fr 1fr; gap: 8px; }
