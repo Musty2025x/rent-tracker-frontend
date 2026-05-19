@@ -12,7 +12,7 @@ function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
   if (loading) return (
     <div style={{ display:'flex',alignItems:'center',justifyContent:'center',height:'100vh' }}>
-      <i className="ti ti-loader-2" style={{ fontSize:32,color:'#9C9A94',animation:'spin 1s linear infinite' }} />
+      <i className="ti ti-loader-2" style={{ fontSize:32,color:'var(--navy)',animation:'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
