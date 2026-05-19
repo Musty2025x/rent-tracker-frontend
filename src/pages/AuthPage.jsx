@@ -46,7 +46,7 @@ export default function AuthPage() {
           Manage your rental properties with ease
         </h1>
         <p style={{ fontSize: 16, color: 'rgba(255,255,255,.65)', lineHeight: 1.7 }}>
-          Track payments, set reminders, generate receipts — all in one place for up to 5 properties.
+          Track payments, set reminders, generate receipts — All in one place for up to 5 properties.
         </p>
       </div>
 
