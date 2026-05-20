@@ -29,7 +29,10 @@ function isValidDate(d) {
 
 function parseDate(str) {
   if (!str) return null
-  const d = new Date(str + 'T00:00:00')
+  // Handle both 'YYYY-MM-DD' and full ISO timestamps like '2024-01-14T23:00:00.000Z'
+  // Always extract just the date part to avoid timezone shifting
+  const dateOnly = typeof str === 'string' ? str.slice(0, 10) : str
+  const d = new Date(dateOnly + 'T00:00:00')
   return isValidDate(d) ? d : null
 }
 
